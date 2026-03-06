@@ -20,6 +20,7 @@ Options:
   -h, --help     Show this help
 
 Commands:
+  bedrock sync       Sync bedrock files into the current project
   bedrock update     Pull latest bedrock templates
   bedrock version    Show installed version
 
@@ -28,6 +29,7 @@ Examples:
   bedrock --name myapp ~/dev/my-app "Python 3.13, uv, pyright strict, pytest"
   bedrock ~/dev/my-app          # interactive setup
   bedrock --bare ~/dev/my-app   # scaffold only, configure later
+  cd existing-project && bedrock sync   # inject bedrock into existing project
 USAGE
 }
 
@@ -43,6 +45,103 @@ do_update() {
     cd "$BEDROCK_HOME" && git pull --ff-only
     echo "Done."
     exit 0
+}
+
+# Sync bedrock files into a project directory.
+# Copies rules, commands, stack.yml template, PROGRESS.md.
+# Merges hook into .claude/settings.json without clobbering user settings.
+# Never touches CLAUDE.md.
+do_sync() {
+    local dir="${1:-.}"
+    dir="$(cd "$dir" && pwd)"
+
+    # Rules (bedrock owns entirely)
+    mkdir -p "$dir/.bedrock/rules"
+    cp "$BEDROCK_HOME/.bedrock/rules/"*.md "$dir/.bedrock/rules/"
+
+    # Stack config template (only if missing)
+    if [ ! -f "$dir/.bedrock/stack.yml" ]; then
+        cp "$BEDROCK_HOME/.bedrock/stack.yml" "$dir/.bedrock/stack.yml"
+    fi
+
+    # Commands (bedrock owns entirely)
+    mkdir -p "$dir/.claude/commands"
+    cp "$BEDROCK_HOME/.claude/commands/"*.md "$dir/.claude/commands/"
+
+    # Merge hook into .claude/settings.json
+    merge_hook "$dir/.claude/settings.json"
+
+    # PROGRESS.md (only if missing)
+    if [ ! -f "$dir/PROGRESS.md" ]; then
+        cp "$BEDROCK_HOME/PROGRESS.md" "$dir/PROGRESS.md"
+    fi
+
+    # CLAUDE.md (only if missing)
+    if [ ! -f "$dir/CLAUDE.md" ]; then
+        cp "$BEDROCK_HOME/CLAUDE.md" "$dir/CLAUDE.md"
+    fi
+
+    echo "bedrock: synced $dir"
+}
+
+# Merge the UserPromptSubmit hook into an existing settings.json.
+# Creates the file if it doesn't exist. Preserves existing settings.
+merge_hook() {
+    local settings_file="$1"
+    local hook_cmd='cat "$CLAUDE_PROJECT_DIR/.bedrock/rules/"*.md 2>/dev/null || true'
+
+    mkdir -p "$(dirname "$settings_file")"
+
+    if [ ! -f "$settings_file" ]; then
+        # No existing settings — write fresh
+        cat > "$settings_file" <<HOOK
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$hook_cmd"
+          }
+        ]
+      }
+    ]
+  }
+}
+HOOK
+        return
+    fi
+
+    # Check if hook already present
+    if grep -q '.bedrock/rules/' "$settings_file" 2>/dev/null; then
+        return
+    fi
+
+    # Merge hook into existing settings using python (available everywhere)
+    python3 -c "
+import json, sys
+
+with open('$settings_file') as f:
+    settings = json.load(f)
+
+hook_entry = {
+    'matcher': '',
+    'hooks': [{'type': 'command', 'command': '''$hook_cmd'''}]
+}
+
+hooks = settings.setdefault('hooks', {})
+ups = hooks.setdefault('UserPromptSubmit', [])
+ups.append(hook_entry)
+
+with open('$settings_file', 'w') as f:
+    json.dump(settings, f, indent=2)
+    f.write('\n')
+" 2>/dev/null || {
+        echo "bedrock: warning: could not merge hook into $settings_file" >&2
+        echo "bedrock: add the UserPromptSubmit hook manually (see .bedrock/settings.json)" >&2
+    }
 }
 
 gather_stack_info() {
@@ -88,6 +187,7 @@ fi
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
+        sync) do_sync; exit 0 ;;
         update) do_update ;;
         version) do_version ;;
         -h|--help) usage; exit 0 ;;
@@ -116,19 +216,13 @@ DIR="$(cd "$DIR" && pwd)"
 # Default project name to directory basename
 NAME="${NAME:-$(basename "$DIR")}"
 
-# Copy scaffold files
-mkdir -p "$DIR/.claude/commands"
-mkdir -p "$DIR/.bedrock/rules"
-cp "$BEDROCK_HOME/CLAUDE.md" "$DIR/CLAUDE.md"
-cp "$BEDROCK_HOME/PROGRESS.md" "$DIR/PROGRESS.md"
-cp "$BEDROCK_HOME/.claude/commands/"*.md "$DIR/.claude/commands/"
-cp "$BEDROCK_HOME/.bedrock/rules/"*.md "$DIR/.bedrock/rules/"
-cp "$BEDROCK_HOME/.bedrock/settings.json" "$DIR/.claude/settings.json"
-
 # Git init if not already a repo
 if [ ! -d "$DIR/.git" ]; then
     git -C "$DIR" init
 fi
+
+# Sync bedrock files into the project
+do_sync "$DIR"
 
 echo "bedrock: scaffolded $DIR"
 
