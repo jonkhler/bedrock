@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+BEDROCK_HOME="${BEDROCK_HOME:-$HOME/.bedrock}"
+
+usage() {
+    echo "Usage: bedrock <dir> [prompt]"
+    echo ""
+    echo "Scaffold a new project with bedrock engineering discipline."
+    echo ""
+    echo "  dir     Target directory (created if it doesn't exist)"
+    echo "  prompt  Optional stack description, e.g. \"Python 3.13, uv, pyright strict, pytest\""
+    echo ""
+    echo "Commands:"
+    echo "  bedrock update    Pull latest bedrock templates"
+    exit 1
+}
+
+do_update() {
+    echo "Updating bedrock..."
+    cd "$BEDROCK_HOME" && git pull --ff-only
+    echo "Done."
+    exit 0
+}
+
+[ $# -lt 1 ] && usage
+[ "$1" = "update" ] && do_update
+[ "$1" = "-h" ] || [ "$1" = "--help" ] && usage
+
+DIR="$1"
+PROMPT="${2:-}"
+
+# Create target directory
+mkdir -p "$DIR"
+DIR="$(cd "$DIR" && pwd)"
+
+# Copy scaffold files
+mkdir -p "$DIR/.claude/commands"
+cp "$BEDROCK_HOME/templates/CLAUDE.md" "$DIR/CLAUDE.md"
+cp "$BEDROCK_HOME/templates/PROGRESS.md" "$DIR/PROGRESS.md"
+cp "$BEDROCK_HOME/templates/commands/"*.md "$DIR/.claude/commands/"
+
+# Write init prompt if provided
+if [ -n "$PROMPT" ]; then
+    echo "$PROMPT" > "$DIR/.claude/init-prompt"
+fi
+
+# Git init if not already a repo
+if [ ! -d "$DIR/.git" ]; then
+    git -C "$DIR" init
+fi
+
+echo "bedrock: scaffolded $DIR"
+
+if [ -n "$PROMPT" ]; then
+    echo "bedrock: launching claude with /stack..."
+    cd "$DIR" && claude --prompt "/stack"
+else
+    echo "bedrock: run 'claude' in $DIR and use /stack to configure"
+fi
