@@ -3,6 +3,7 @@
 ## Principles
 
 - **Code is for humans**: Readability is the primary design constraint. Names, structure, and types should make intent obvious. Code that is clever but opaque is wrong
+- **No assumed consent**: Never jump to implementation after discussion. Always confirm the plan with the user before writing code. Discussion is not approval
 - **Incremental corrections**: Any user correction or preference gets added to this file immediately
 - **Transparent commit graph**: Small, incremental commits with clear messages; no monolithic dumps
 - **Strict typing**: Use the strictest type checking available. No escape hatches. Types serve as documentation
@@ -31,7 +32,7 @@ Never guess at APIs, library behavior, or system semantics.
 For every unit of work:
 0. Read PROGRESS.md to recover context
 1. Resolve uncertainties (web search, then ask user)
-2. Plan incremental breakdown into transparent commits
+2. Plan incremental breakdown into transparent commits. Confirm plan with the user before proceeding
 3. For each commit: first pin tests and behavior, validate with `/qa`
 4. Then implement until `/qa` passes
 5. Then commit
