@@ -19,14 +19,14 @@ Make sure `~/.local/bin` is on your `PATH`.
 ## Usage
 
 ```sh
-# Scaffold with a stack description
+# With a stack description — launches /stack automatically
 bedrock ~/dev/my-project "Python 3.13, uv, pyright strict, pytest"
 
-# Scaffold without — configure interactively with /stack
+# Interactive — asks questions until it has enough info, then launches /stack
 bedrock ~/dev/my-project
-cd ~/dev/my-project
-claude
-> /stack
+
+# Bare scaffold only — configure later with /stack
+bedrock --bare ~/dev/my-project
 ```
 
 ## Update
@@ -37,6 +37,8 @@ bedrock update
 
 ## How it works
 
-`bedrock` copies template files into your project and optionally launches Claude Code with `/stack` to set up language-specific tooling (type checker, test runner, pre-commit hooks, package config).
+1. **Scaffold**: copies CLAUDE.md, PROGRESS.md, and commands into your project
+2. **Gather stack info**: from the prompt argument, or interactively via a question loop
+3. **Configure**: launches Claude Code with `/stack`, which fills in CLAUDE.md and sets up language-specific tooling (type checker, test runner, pre-commit hooks, package config)
 
 The iteration protocol enforces: resolve uncertainties, pin tests, validate with `/qa`, commit, update `/progress`. Every commit passes strict type checking and tests via pre-commit hooks.
