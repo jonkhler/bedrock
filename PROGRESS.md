@@ -2,16 +2,19 @@
 
 ## Current state
 
-Project scaffold with language-agnostic engineering discipline:
-- CLAUDE.md template with principles, protocols, and stack placeholder
-- `/qa` and `/progress` commands
-- No language-specific tooling — fill in Stack section per project
+Complete scaffold with CLI:
+- `bedrock <dir> [prompt]` — copies templates, optionally launches `/stack`
+- `curl | sh` installer to `~/.bedrock` + `~/.local/bin`
+- Commands: `/qa`, `/progress`, `/stack`
+- Templates: CLAUDE.md, PROGRESS.md, all commands
+- README with install/usage docs
 
 ## Next
 
-- README explaining what bedrock is and how to use it
-- Example instantiation (e.g. Python with pyright/pytest)
+- Push to GitHub (github.com/jonkhler/bedrock)
+- Test end-to-end: install + scaffold a fresh project
+- Consider: `.gitignore` template? LICENSE?
 
 ## Open decisions
 
-- None yet
+- GitHub username in install.sh — currently `jonkhler`, verify correct
