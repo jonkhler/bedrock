@@ -9,6 +9,7 @@ Usage: bedrock [options] <dir> [prompt]
 
 Scaffold a new project with bedrock engineering discipline.
 
+Arguments:
   dir     Target directory (created if it doesn't exist)
   prompt  Optional stack description, e.g. "Python 3.13, uv, pyright strict, pytest"
 
@@ -18,7 +19,8 @@ Options:
   -h, --help     Show this help
 
 Commands:
-  bedrock update    Pull latest bedrock templates
+  bedrock update     Pull latest bedrock templates
+  bedrock version    Show installed version
 
 Examples:
   bedrock ~/dev/my-app "Python 3.13, uv, pyright strict, pytest"
@@ -26,7 +28,13 @@ Examples:
   bedrock ~/dev/my-app          # interactive setup
   bedrock --bare ~/dev/my-app   # scaffold only, configure later
 USAGE
-    exit 1
+}
+
+do_version() {
+    local ver
+    ver=$(cd "$BEDROCK_HOME" && git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+    echo "bedrock $ver"
+    exit 0
 }
 
 do_update() {
@@ -71,20 +79,29 @@ A: ${answer}"
 BARE=false
 NAME=""
 
-[ $# -lt 1 ] && usage
+if [ $# -lt 1 ]; then
+    usage
+    exit 1
+fi
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         update) do_update ;;
-        -h|--help) usage ;;
+        version) do_version ;;
+        -h|--help) usage; exit 0 ;;
         --bare) BARE=true; shift ;;
         --name) NAME="$2"; shift 2 ;;
-        -*) echo "Unknown option: $1"; usage ;;
+        -*) echo "Error: unknown option '$1'" >&2; echo "" >&2; usage >&2; exit 1 ;;
         *) break ;;
     esac
 done
 
-[ $# -lt 1 ] && usage
+if [ $# -lt 1 ]; then
+    echo "Error: missing required argument <dir>" >&2
+    echo "" >&2
+    usage >&2
+    exit 1
+fi
 
 DIR="$1"
 PROMPT="${2:-}"

@@ -19,4 +19,7 @@ ln -sf "$BEDROCK_HOME/bin/bedrock" "$BIN_DIR/bedrock"
 
 echo "Installed. Make sure $BIN_DIR is on your PATH."
 echo ""
-echo "Usage: bedrock <dir> [prompt]"
+echo "Quick start:"
+echo "  bedrock ~/dev/my-app \"Python 3.13, uv, pyright strict, pytest\""
+echo ""
+echo "Run 'bedrock --help' for all options."
