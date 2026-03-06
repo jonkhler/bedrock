@@ -67,17 +67,23 @@ def sync_cmd(directory: str) -> None:
 
 @main.command()
 def update() -> None:
-    """Pull latest bedrock templates."""
+    """Pull latest bedrock templates and reinstall CLI."""
     home = bedrock_home()
-    info("updating...")
+    info("pulling latest...")
     result = subprocess.run(
         ["git", "pull", "--ff-only"],
         cwd=home,
-        capture_output=True,
-        text=True,
     )
     if result.returncode != 0:
-        error(f"update failed: {result.stderr.strip()}")
+        error("git pull failed")
+        sys.exit(1)
+
+    info("reinstalling CLI...")
+    result = subprocess.run(
+        ["uv", "tool", "install", "--force", str(home)],
+    )
+    if result.returncode != 0:
+        error("uv tool install failed")
         sys.exit(1)
     info("done.")
 
