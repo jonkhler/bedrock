@@ -115,9 +115,12 @@ NAME="${NAME:-$(basename "$DIR")}"
 
 # Copy scaffold files
 mkdir -p "$DIR/.claude/commands"
+mkdir -p "$DIR/.bedrock/rules"
 cp "$BEDROCK_HOME/CLAUDE.md" "$DIR/CLAUDE.md"
 cp "$BEDROCK_HOME/PROGRESS.md" "$DIR/PROGRESS.md"
 cp "$BEDROCK_HOME/.claude/commands/"*.md "$DIR/.claude/commands/"
+cp "$BEDROCK_HOME/.bedrock/rules/"*.md "$DIR/.bedrock/rules/"
+cp "$BEDROCK_HOME/.bedrock/settings.json" "$DIR/.claude/settings.json"
 
 # Git init if not already a repo
 if [ ! -d "$DIR/.git" ]; then
@@ -145,4 +148,4 @@ ${local_prompt}" > "$DIR/.claude/init-prompt"
 
 # Launch claude with /stack
 echo "bedrock: launching claude with /stack..."
-cd "$DIR" && claude --prompt "/stack"
+cd "$DIR" && claude "/stack"
