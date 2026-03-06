@@ -19,14 +19,17 @@ Make sure `~/.local/bin` is on your `PATH`.
 ## Usage
 
 ```sh
-# With a stack description — launches /stack automatically
-bedrock ~/dev/my-project "Python 3.13, uv, pyright strict, pytest"
+# With a stack description — configures everything automatically
+bedrock ~/dev/my-app "Python 3.13, uv, pyright strict, pytest"
 
-# Interactive — asks questions until it has enough info, then launches /stack
-bedrock ~/dev/my-project
+# With a custom project name
+bedrock --name myapp ~/dev/my-app "Python 3.13, uv, pyright strict, pytest"
+
+# Interactive — asks questions until it has enough info
+bedrock ~/dev/my-app
 
 # Bare scaffold only — configure later with /stack
-bedrock --bare ~/dev/my-project
+bedrock --bare ~/dev/my-app
 ```
 
 ## Update
@@ -41,4 +44,21 @@ bedrock update
 2. **Gather stack info**: from the prompt argument, or interactively via a question loop
 3. **Configure**: launches Claude Code with `/stack`, which fills in CLAUDE.md and sets up language-specific tooling (type checker, test runner, pre-commit hooks, package config)
 
+`/stack` runs headlessly when a complete init-prompt exists — no interactive prompting during automated setup.
+
 The iteration protocol enforces: resolve uncertainties, pin tests, validate with `/qa`, commit, update `/progress`. Every commit passes strict type checking and tests via pre-commit hooks.
+
+## Structure
+
+```
+bin/bedrock          # CLI
+prompts/             # Prompt templates read by the CLI
+  gather-stack.md
+.claude/commands/    # Commands (copied into new projects)
+  qa.md
+  progress.md
+  stack.md
+CLAUDE.md            # Template (copied into new projects)
+PROGRESS.md          # Template (copied into new projects)
+install.sh           # curl | sh installer
+```
