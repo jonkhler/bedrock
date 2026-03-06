@@ -3,7 +3,7 @@
 ## Principles
 
 - **Code is for humans**: Readability is the primary design constraint. Names, structure, and types should make intent obvious. Code that is clever but opaque is wrong
-- **No assumed consent**: Never jump to implementation after discussion. Always confirm the plan with the user before writing code. Discussion is not approval
+- **No assumed consent**: Never jump to implementation after discussion. Always confirm the plan with the user before writing code. Discussion is not approval. An explicit user invocation (command, loop, or "go ahead") constitutes consent for the scoped task
 - **Incremental corrections**: Any user correction or preference gets added to this file immediately
 - **Transparent commit graph**: Small, incremental commits with clear messages; no monolithic dumps
 - **Strict typing**: Use the strictest type checking available. No escape hatches. Types serve as documentation
