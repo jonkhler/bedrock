@@ -13,14 +13,16 @@ Scaffold a new project with bedrock engineering discipline.
   prompt  Optional stack description, e.g. "Python 3.13, uv, pyright strict, pytest"
 
 Options:
-  --bare  Copy scaffold files only, skip stack configuration
-  -h      Show this help
+  --name <name>  Project name (defaults to directory basename)
+  --bare         Copy scaffold files only, skip stack configuration
+  -h, --help     Show this help
 
 Commands:
   bedrock update    Pull latest bedrock templates
 
 Examples:
   bedrock ~/dev/my-app "Python 3.13, uv, pyright strict, pytest"
+  bedrock --name myapp ~/dev/my-app "Python 3.13, uv, pyright strict, pytest"
   bedrock ~/dev/my-app          # interactive setup
   bedrock --bare ~/dev/my-app   # scaffold only, configure later
 USAGE
@@ -36,32 +38,26 @@ do_update() {
 
 gather_stack_info() {
     local dir="$1"
+    local prompt_template
+    prompt_template=$(cat "$BEDROCK_HOME/prompts/gather-stack.md")
     local gathered=""
 
     echo "bedrock: interactive stack setup (ctrl-c to abort)"
     echo ""
 
     while true; do
-        response=$(claude -p "You are helping set up a new project. You are gathering stack information interactively.
+        local prompt="${prompt_template//\{\{gathered\}\}/${gathered:-Nothing yet.}}"
+        local response
+        response=$(claude -p "$prompt" 2>/dev/null)
 
-So far the user has told you:
-${gathered:-Nothing yet.}
-
-If you have enough information to fully describe the stack (language, version, type checker, test runner, package manager), respond with EXACTLY this format on the first line:
-READY: <one-line stack description>
-
-If you need more information, ask ONE focused question. Keep it short. Do not explain what you already know, just ask the next question." 2>/dev/null)
-
-        # Check if Claude has enough info
         if [[ "$response" == READY:* ]]; then
-            prompt="${response#READY: }"
+            local stack_desc="${response#READY: }"
             echo ""
-            echo "bedrock: stack determined: $prompt"
-            echo "$prompt" > "$dir/.claude/init-prompt"
+            echo "bedrock: stack determined: $stack_desc"
+            echo "$stack_desc" > "$dir/.claude/init-prompt"
             return 0
         fi
 
-        # Ask the user
         echo "$response"
         printf "> "
         read -r answer
@@ -73,13 +69,20 @@ A: ${answer}"
 
 # Parse arguments
 BARE=false
+NAME=""
+
 [ $# -lt 1 ] && usage
 
-case "$1" in
-    update) do_update ;;
-    -h|--help) usage ;;
-    --bare) BARE=true; shift ;;
-esac
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        update) do_update ;;
+        -h|--help) usage ;;
+        --bare) BARE=true; shift ;;
+        --name) NAME="$2"; shift 2 ;;
+        -*) echo "Unknown option: $1"; usage ;;
+        *) break ;;
+    esac
+done
 
 [ $# -lt 1 ] && usage
 
@@ -90,11 +93,14 @@ PROMPT="${2:-}"
 mkdir -p "$DIR"
 DIR="$(cd "$DIR" && pwd)"
 
+# Default project name to directory basename
+NAME="${NAME:-$(basename "$DIR")}"
+
 # Copy scaffold files
 mkdir -p "$DIR/.claude/commands"
-cp "$BEDROCK_HOME/templates/CLAUDE.md" "$DIR/CLAUDE.md"
-cp "$BEDROCK_HOME/templates/PROGRESS.md" "$DIR/PROGRESS.md"
-cp "$BEDROCK_HOME/templates/commands/"*.md "$DIR/.claude/commands/"
+cp "$BEDROCK_HOME/CLAUDE.md" "$DIR/CLAUDE.md"
+cp "$BEDROCK_HOME/PROGRESS.md" "$DIR/PROGRESS.md"
+cp "$BEDROCK_HOME/.claude/commands/"*.md "$DIR/.claude/commands/"
 
 # Git init if not already a repo
 if [ ! -d "$DIR/.git" ]; then
@@ -108,12 +114,17 @@ if [ "$BARE" = true ]; then
     exit 0
 fi
 
-# Determine stack: direct prompt, interactive gathering, or skip
-if [ -n "$PROMPT" ]; then
-    echo "$PROMPT" > "$DIR/.claude/init-prompt"
-else
+# Determine stack: direct prompt, interactive gathering
+if [ -z "$PROMPT" ]; then
     gather_stack_info "$DIR"
+else
+    echo "$PROMPT" > "$DIR/.claude/init-prompt"
 fi
+
+# Prepend project name to init-prompt
+local_prompt=$(cat "$DIR/.claude/init-prompt")
+echo "Project name: ${NAME}
+${local_prompt}" > "$DIR/.claude/init-prompt"
 
 # Launch claude with /stack
 echo "bedrock: launching claude with /stack..."
