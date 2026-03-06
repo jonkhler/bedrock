@@ -16,6 +16,7 @@ Arguments:
 Options:
   --name <name>  Project name (defaults to directory basename)
   --bare         Copy scaffold files only, skip stack configuration
+  --headless     Run /stack non-interactively and exit
   -h, --help     Show this help
 
 Commands:
@@ -77,6 +78,7 @@ A: ${answer}"
 
 # Parse arguments
 BARE=false
+HEADLESS=false
 NAME=""
 
 if [ $# -lt 1 ]; then
@@ -90,6 +92,7 @@ while [[ $# -gt 0 ]]; do
         version) do_version ;;
         -h|--help) usage; exit 0 ;;
         --bare) BARE=true; shift ;;
+        --headless) HEADLESS=true; shift ;;
         --name) NAME="$2"; shift 2 ;;
         -*) echo "Error: unknown option '$1'" >&2; echo "" >&2; usage >&2; exit 1 ;;
         *) break ;;
@@ -147,5 +150,10 @@ echo "Project name: ${NAME}
 ${local_prompt}" > "$DIR/.claude/init-prompt"
 
 # Launch claude with /stack
-echo "bedrock: launching claude with /stack..."
-cd "$DIR" && claude "/stack"
+if [ "$HEADLESS" = true ]; then
+    echo "bedrock: running /stack headless..."
+    cd "$DIR" && claude -p --dangerously-skip-permissions "/stack"
+else
+    echo "bedrock: launching claude with /stack..."
+    cd "$DIR" && claude "/stack"
+fi
