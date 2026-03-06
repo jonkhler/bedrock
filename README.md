@@ -14,27 +14,27 @@ Engineering discipline scaffold for Claude Code projects. Language-agnostic.
 curl -sSf https://raw.githubusercontent.com/jonkhler/bedrock/main/install.sh | sh
 ```
 
-Make sure `~/.local/bin` is on your `PATH`.
+Requires [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 ## Usage
 
 ```sh
 # With a stack description — configures everything automatically
-bedrock ~/dev/my-app "Python 3.13, uv, pyright strict, pytest"
+bedrock new ~/dev/my-app "Python 3.13, uv, pyright strict, pytest"
 
 # With a custom project name
-bedrock --name myapp ~/dev/my-app "Python 3.13, uv, pyright strict, pytest"
+bedrock new --name myapp ~/dev/my-app "Python 3.13, uv, pyright strict, pytest"
 
 # Interactive — asks questions until it has enough info
-bedrock ~/dev/my-app
+bedrock new ~/dev/my-app
 
 # Bare scaffold only — configure later with /stack
-bedrock --bare ~/dev/my-app
-```
+bedrock new --bare ~/dev/my-app
 
-## Update
+# Inject bedrock into an existing project
+bedrock sync
 
-```sh
+# Pull latest templates
 bedrock update
 ```
 
@@ -51,14 +51,16 @@ The iteration protocol enforces: resolve uncertainties, pin tests, validate with
 ## Structure
 
 ```
-bin/bedrock          # CLI
+src/bedrock/         # CLI (Python, installed via uv)
 prompts/             # Prompt templates read by the CLI
   gather-stack.md
 .claude/commands/    # Commands (copied into new projects)
   qa.md
   progress.md
   stack.md
+  remind.md
 CLAUDE.md            # Template (copied into new projects)
 PROGRESS.md          # Template (copied into new projects)
 install.sh           # curl | sh installer
+pyproject.toml       # Package config
 ```

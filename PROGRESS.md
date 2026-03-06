@@ -2,11 +2,12 @@
 
 ## Current state
 
-Complete scaffold with CLI:
-- `bedrock <dir> [prompt]` — scaffolds project, optionally launches `/stack`
+Python CLI (click + rich, installed via `uv tool install`):
+- `bedrock new <dir> [prompt]` — scaffolds project, optionally launches `/stack`
 - `bedrock sync` — inject/upgrade bedrock in any project (new or existing)
 - `bedrock update` — pull latest templates to ~/.bedrock
-- `curl | sh` installer to `~/.bedrock` + `~/.local/bin`
+- `bedrock version` — show installed version
+- `curl | sh` installer using `uv tool install`
 - Flags: `--name`, `--bare`, `--headless`
 - Commands: `/qa`, `/progress`, `/stack`, `/remind`
 
@@ -22,9 +23,4 @@ Architecture:
 
 - Push to GitHub (github.com/jonkhler/bedrock)
 - Test end-to-end: fresh scaffold, sync into existing project, upgrade after update
-- Update README to document new architecture
-- Consider: `.gitignore` template? LICENSE?
-
-## Open decisions
-
-- GitHub username in install.sh — currently `jonkhler`, verify correct
+- Consider: LICENSE?

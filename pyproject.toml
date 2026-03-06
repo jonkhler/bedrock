@@ -1,0 +1,20 @@
+[project]
+name = "bedrock-cli"
+version = "0.1.0"
+description = "Scaffold projects with engineering discipline for Claude Code"
+requires-python = ">=3.10"
+dependencies = [
+    "click>=8.1",
+    "rich>=13.0",
+    "pyyaml>=6.0",
+]
+
+[project.scripts]
+bedrock = "bedrock.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bedrock"]
