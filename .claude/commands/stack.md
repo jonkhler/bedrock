@@ -4,18 +4,17 @@ description: Configure project stack - fill in CLAUDE.md, set up tooling, initia
 user_invocable: true
 ---
 
-Configure this project's language-specific tooling. If `.claude/init-prompt` exists, read it as the stack description. Otherwise, ask the user what stack they want.
+Configure this project's language-specific tooling.
+
+## Input
+
+Read `.claude/init-prompt`. It contains the project name and complete stack specification. If the file does not exist, ask the user for the stack description — but do NOT proceed until you have all of: language/version, type checker, test runner, and package manager.
 
 ## Steps
 
-1. **Determine the stack**: Read `.claude/init-prompt` or ask the user. Identify:
-   - Language and version
-   - Type checker (and strictness level)
-   - Test runner
-   - Package manager / build system
-   - Any other tooling preferences
+1. **Parse the init-prompt**: Extract project name, language, version, type checker, test runner, package manager. Do NOT prompt for clarification if the init-prompt provides all required fields.
 
-2. **Fill in CLAUDE.md**: Update the Stack section with concrete values. Replace `<Project>` in the title with the actual project name (infer from directory name or ask).
+2. **Fill in CLAUDE.md**: Replace `<Project>` in the title with the project name. Fill in the Stack section with concrete values and commands (e.g., the exact commands `/qa` should run).
 
 3. **Set up tooling**:
    - Initialize the package manager config if needed (e.g., `pyproject.toml`, `package.json`, `Cargo.toml`)
@@ -28,7 +27,7 @@ Configure this project's language-specific tooling. If `.claude/init-prompt` exi
 
 4. **Update PROGRESS.md** to reflect the configured state.
 
-5. **Delete `.claude/init-prompt`** if it existed.
+5. **Delete `.claude/init-prompt`**.
 
 6. **Commit incrementally** following the iteration protocol:
    - Commit 1: CLAUDE.md with filled-in stack
