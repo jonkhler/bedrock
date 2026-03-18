@@ -61,10 +61,14 @@ def new(directory: str, prompt: str | None, name: str | None, bare: bool, headle
 
 @main.command(name="sync")
 @click.argument("directory", default=".", type=click.Path(exists=True))
-@click.option("--force", is_flag=True, help="Overwrite existing CLAUDE.md and PROGRESS.md.")
+@click.option("--force", is_flag=True, help="Overwrite existing CLAUDE.md and PROGRESS.md, then run /init-progress.")
 def sync_cmd(directory: str, force: bool) -> None:
     """Sync bedrock files into a project directory."""
-    sync(Path(directory), force=force)
+    target = Path(directory).resolve()
+    sync(target, force=force)
+    if force:
+        info("running /init-progress to populate PROGRESS.md...")
+        subprocess.run(["claude", "-p", "--dangerously-skip-permissions", "/init-progress"], cwd=target)
 
 
 @main.command()
