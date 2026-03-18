@@ -1,6 +1,9 @@
 # bedrock
 
-Engineering discipline scaffold for Claude Code projects. Language-agnostic.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Docs](https://img.shields.io/badge/docs-jonkhler.github.io%2Fbedrock-blue)](https://jonkhler.github.io/bedrock)
+
+Engineering discipline scaffold for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) projects. Language-agnostic.
 
 ## What you get
 
@@ -74,3 +77,11 @@ PROGRESS.md          # Template (copied into new projects)
 install.sh           # curl | sh installer
 pyproject.toml       # Package config
 ```
+
+## Documentation
+
+Full docs at [jonkhler.github.io/bedrock](https://jonkhler.github.io/bedrock) — architecture, rules reference, extending guide, and more.
+
+## License
+
+MIT
