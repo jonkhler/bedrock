@@ -37,11 +37,12 @@ def sync(target: Path, force: bool = False) -> None:
 
     # Template files: copy on first sync, skip on upgrades (unless --force)
     for filename in ("PROGRESS.md", "CLAUDE.md"):
+        src = home / "templates" / filename
         dest = target / filename
         if force:
-            shutil.copy2(home / filename, dest)
+            shutil.copy2(src, dest)
         elif not dest.exists():
-            shutil.copy2(home / filename, dest)
+            shutil.copy2(src, dest)
         elif first_time:
             warn(f"{filename} already exists, skipping (use --force to overwrite)")
 

@@ -72,8 +72,9 @@ src/bedrock/         # CLI (Python, installed via uv)
   remind.md
 prompts/             # Prompt templates read by the CLI
   gather-stack.md
-CLAUDE.md            # Template (copied into new projects)
-PROGRESS.md          # Template (copied into new projects)
+templates/
+  CLAUDE.md          # Template (copied into new projects)
+  PROGRESS.md        # Template (copied into new projects)
 install.sh           # curl | sh installer
 pyproject.toml       # Package config
 ```
