@@ -82,7 +82,7 @@ def update() -> None:
 
     info("reinstalling CLI...")
     result = subprocess.run(
-        ["uv", "tool", "install", "--force", str(home)],
+        ["uv", "tool", "install", "--force", "--no-cache", str(home)],
     )
     if result.returncode != 0:
         error("uv tool install failed")
