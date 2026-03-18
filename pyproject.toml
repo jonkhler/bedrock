@@ -1,6 +1,6 @@
 [project]
 name = "bedrock-cli"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Scaffold projects with engineering discipline for Claude Code"
 requires-python = ">=3.10"
 license = "MIT"
@@ -19,8 +19,11 @@ Repository = "https://github.com/jonkhler/bedrock"
 bedrock = "bedrock.cli:main"
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/bedrock"]
