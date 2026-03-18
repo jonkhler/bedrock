@@ -1,0 +1,47 @@
+site_name: bedrock
+site_description: Engineering discipline scaffold for Claude Code projects
+site_url: https://jonkhler.github.io/bedrock
+repo_url: https://github.com/jonkhler/bedrock
+repo_name: jonkhler/bedrock
+
+theme:
+  name: material
+  palette:
+    - scheme: slate
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+    - scheme: default
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+  features:
+    - content.code.copy
+    - navigation.sections
+    - navigation.expand
+
+markdown_extensions:
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - md_in_html
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Architecture: architecture.md
+  - Rules: rules.md
+  - Commands: commands.md
+  - CLI Reference: cli.md
+  - Extending: extending.md
