@@ -25,7 +25,8 @@ def main(ctx: click.Context) -> None:
 @click.option("--name", default=None, help="Project name (defaults to directory basename).")
 @click.option("--bare", is_flag=True, help="Copy scaffold files only, skip stack configuration.")
 @click.option("--headless", is_flag=True, help="Run /stack non-interactively and exit.")
-def new(directory: str, prompt: str | None, name: str | None, bare: bool, headless: bool) -> None:
+@click.option("--force", is_flag=True, help="Overwrite existing CLAUDE.md and PROGRESS.md.")
+def new(directory: str, prompt: str | None, name: str | None, bare: bool, headless: bool, force: bool) -> None:
     """Scaffold a new project.
 
     DIRECTORY is the target directory (created if it doesn't exist).
@@ -37,7 +38,7 @@ def new(directory: str, prompt: str | None, name: str | None, bare: bool, headle
     project_name = name or target.name
 
     init_git(target)
-    sync(target)
+    sync(target, force=force)
     info(f"scaffolded {target}")
 
     if bare:
@@ -60,9 +61,10 @@ def new(directory: str, prompt: str | None, name: str | None, bare: bool, headle
 
 @main.command(name="sync")
 @click.argument("directory", default=".", type=click.Path(exists=True))
-def sync_cmd(directory: str) -> None:
+@click.option("--force", is_flag=True, help="Overwrite existing CLAUDE.md and PROGRESS.md.")
+def sync_cmd(directory: str, force: bool) -> None:
     """Sync bedrock files into a project directory."""
-    sync(Path(directory))
+    sync(Path(directory), force=force)
 
 
 @main.command()

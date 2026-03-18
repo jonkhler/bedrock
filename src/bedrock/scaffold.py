@@ -9,10 +9,11 @@ from bedrock.paths import bedrock_home
 from bedrock.settings import merge_hook
 
 
-def sync(target: Path) -> None:
+def sync(target: Path, force: bool = False) -> None:
     """Sync bedrock files into a project directory."""
     home = bedrock_home()
     target = target.resolve()
+    first_time = not (target / ".bedrock").exists()
 
     # Rules (bedrock owns entirely)
     rules_dir = target / ".bedrock" / "rules"
@@ -34,15 +35,15 @@ def sync(target: Path) -> None:
     # Merge hook into .claude/settings.json
     merge_hook(target / ".claude" / "settings.json")
 
-    # PROGRESS.md (only if missing)
-    progress = target / "PROGRESS.md"
-    if not progress.exists():
-        shutil.copy2(home / "PROGRESS.md", progress)
-
-    # CLAUDE.md (only if missing)
-    claude_md = target / "CLAUDE.md"
-    if not claude_md.exists():
-        shutil.copy2(home / "CLAUDE.md", claude_md)
+    # Template files: copy on first sync, skip on upgrades (unless --force)
+    for filename in ("PROGRESS.md", "CLAUDE.md"):
+        dest = target / filename
+        if force:
+            shutil.copy2(home / filename, dest)
+        elif not dest.exists():
+            shutil.copy2(home / filename, dest)
+        elif first_time:
+            warn(f"{filename} already exists, skipping (use --force to overwrite)")
 
     info(f"synced {target}")
 
