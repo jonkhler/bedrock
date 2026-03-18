@@ -4,9 +4,10 @@ Engineering discipline scaffold for Claude Code projects. Language-agnostic.
 
 ## What you get
 
-- **CLAUDE.md** — Principles (code is for humans, strict typing, TDD), epistemic protocol, iteration protocol
-- **Commands** — `/qa` (type checker + tests + test quality review), `/progress` (context-recovery updates), `/stack` (project configuration)
+- **Rules** (`.bedrock/rules/`) — Engineering principles injected every turn via hooks: consent, testing, code quality, epistemic discipline, iteration protocol
+- **Commands** — `/qa` (type checker + tests + test quality review), `/progress` (context-recovery updates), `/stack` (project configuration), `/remind` (re-inject rules)
 - **PROGRESS.md** — Lean context-recovery document for session starts
+- **Stack config** (`.bedrock/stack.yml`) — Declares language, type checker, test runner, package manager
 
 ## Install
 
@@ -34,8 +35,14 @@ bedrock new --bare ~/dev/my-app
 # Inject bedrock into an existing project
 bedrock sync
 
-# Pull latest templates
+# Force overwrite CLAUDE.md and PROGRESS.md
+bedrock sync --force
+
+# Pull latest templates and reinstall CLI
 bedrock update
+
+# Show installed version
+bedrock version
 ```
 
 ## How it works
@@ -52,13 +59,16 @@ The iteration protocol enforces: resolve uncertainties, pin tests, validate with
 
 ```
 src/bedrock/         # CLI (Python, installed via uv)
-prompts/             # Prompt templates read by the CLI
-  gather-stack.md
+.bedrock/
+  rules/             # Engineering rules (copied into new projects)
+  stack.yml          # Stack config template
 .claude/commands/    # Commands (copied into new projects)
   qa.md
   progress.md
   stack.md
   remind.md
+prompts/             # Prompt templates read by the CLI
+  gather-stack.md
 CLAUDE.md            # Template (copied into new projects)
 PROGRESS.md          # Template (copied into new projects)
 install.sh           # curl | sh installer
